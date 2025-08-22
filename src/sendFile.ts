@@ -1,6 +1,6 @@
 import FormData from 'form-data';
 import fs, { PathLike } from 'fs';
-import { FilePayload } from '../types/webhook-payload.js';
+import { FilePayload } from './types/webhook-payload.js';
 import { IncomingMessage } from 'http';
 
 export function sendFile(hookUrl: string, file: PathLike, payload: FilePayload) {

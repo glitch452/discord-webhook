@@ -9,7 +9,7 @@ const fileName = /** @type {const} */ ({
   TYPES_CJS: 'index.d.cts',
   ESM: 'index.js',
   CJS: 'index.cjs',
-  ENTRYPOINT: 'index.js',
+  ENTRYPOINT: 'index.ts',
 });
 
 /* eslint-disable jsdoc/valid-types -- `import` is ok for an interface property */

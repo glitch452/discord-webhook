@@ -1,8 +1,9 @@
-import { sendFile, sendWebhook } from '../api/index.js';
-import { BaseWebhookPayload, WebhookPayload } from '../types/webhook-payload.js';
+import { BaseWebhookPayload, WebhookPayload } from './types/webhook-payload.js';
 import { MessageBuilder } from './MessageBuilder.js';
 import { StatusCodes } from 'http-status-codes';
-import { webhookResponseBodySchema } from '../types/schemas.js';
+import { webhookResponseBodySchema } from './schemas.js';
+import { sendFile } from './sendFile.js';
+import { sendWebhook } from './sendWebhook.js';
 
 export interface WebhookOptions {
   url: string;
@@ -72,7 +73,7 @@ export class Webhook {
         const body = webhookResponseBodySchema.parse(await res.json());
         const waitUntil = body.retry_after;
 
-        setTimeout(() => sendWebhook(this.hookUrl, webhookPayload), waitUntil);
+        setTimeout(() => this.send(payload), waitUntil);
       } else if (res.status !== Number(StatusCodes.NO_CONTENT)) {
         throw new Error(`Error sending webhook: ${res.status} status code. Response: ${await res.text()}`);
       }
