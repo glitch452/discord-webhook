@@ -1,5 +1,5 @@
-import { MessageBuilder } from './classes/MessageBuilder.js';
-import { Webhook } from './classes/Webhook.js';
+import { MessageBuilder } from './MessageBuilder.js';
+import { Webhook } from './Webhook.js';
 
 const discordWebhookNode = {
   Webhook,
