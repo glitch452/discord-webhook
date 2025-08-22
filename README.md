@@ -1,56 +1,57 @@
-# Discord Webhook sending
+# Discord Webhook
 
-![version](https://img.shields.io/npm/v/discord-webhook-node 'Version')
-![npm](https://img.shields.io/npm/dt/discord-webhook-node.svg 'Total Downloads')
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/matthew1232/discord-webhook-node.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/matthew1232/discord-webhook-node/alerts/)
-[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/matthew1232/discord-webhook-node.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/matthew1232/discord-webhook-node/context:javascript)
+[![NPM License](https://img.shields.io/npm/l/@glitch452/discord-webhook)](https://choosealicense.com/licenses/mit/)
+[![NPM Version](https://img.shields.io/npm/v/@glitch452/discord-webhook)](https://www.npmjs.com/package/@glitch452/discord-webhook)
+[![NPM Downloads](https://img.shields.io/npm/dw/@glitch452/discord-webhook?logo=npm)](https://www.npmjs.com/package/@glitch452/discord-webhook)
 
 ## Table of Contents
 
-- [Discord Webhook sending](#discord-webhook-sending)
+- [Discord Webhook](#discord-webhook)
   - [Table of Contents](#table-of-contents)
-  - [Installation](#installation)
+  - [What's New](#whats-new)
+  - [Install](#install)
   - [Examples](#examples)
-    - [Basic use](#basic-use)
+    - [Basic usage](#basic-usage)
     - [Custom embeds](#custom-embeds)
     - [Sending files](#sending-files)
     - [Preset messages](#preset-messages)
     - [Custom settings](#custom-settings)
-  - [Notes](#notes)
-  - [API](#api)
-    - [Webhook - class](#webhook---class)
-  - [boolean)](#boolean)
-    - [MessageBuilder - class](#messagebuilder---class)
   - [License](#license)
 
-## Installation
+## What's New
 
-`npm install discord-webhook-node` or `yarn add discord-webhook-node`
+Check out the [GitHub Releases](https://github.com/glitch452/discord-webhook/releases) page for the latest release
+notes.
+
+## Install
+
+```sh
+npm install @glitch452/discord-webhook
+```
 
 ## Examples
 
-### Basic use
+### Basic usage
 
-```js
-const { Webhook } = require('discord-webhook-node');
+```ts
+import { Webhook } from '@glitch452/discord-webhook';
 
-const hook = new Webhook('YOUR WEBHOOK URL');
+const hook = new Webhook('<YOUR_WEBHOOK_URL>');
 
-const IMAGE_URL = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
 hook.setUsername('Discord Webhook Node Name');
-hook.setAvatar(IMAGE_URL);
+hook.setAvatar('https://cdn.discordapp.com/embed/avatars/0.png');
 
 hook.send('Hello there!');
 ```
 
 ### Custom embeds
 
-```js
-const { Webhook, MessageBuilder } = require('discord-webhook-node');
+```ts
+import { MessageBuilder, Webhook } from '@glitch452/discord-webhook';
 
-const hook = new Webhook('YOUR WEBHOOK URL');
+const hook = new Webhook('<YOUR_WEBHOOK_URL>');
 
-const embed = new MessageBuilder()
+const message = new MessageBuilder()
   .setTitle('My title here')
   .setAuthor('Author here', 'https://cdn.discordapp.com/embed/avatars/0.png', 'https://www.google.com')
   .setURL('https://www.google.com')
@@ -63,29 +64,29 @@ const embed = new MessageBuilder()
   .setFooter('Hey its a footer', 'https://cdn.discordapp.com/embed/avatars/0.png')
   .setTimestamp();
 
-hook.send(embed);
+hook.send(message);
 ```
 
-Keep in mind that the custom embed method `setColor` takes in a decimal color/a hex color (pure black and white hex
+Keep in mind that the custom embed method `setColor` takes in a decimal color or a hex color (pure black and white hex
 colors will be innacurate). You can convert hex colors to decimal using this website here:
 <https://convertingcolors.com>
 
 ### Sending files
 
 ```js
-const { Webhook } = require('discord-webhook-node');
+import { Webhook } from '@glitch452/discord-webhook';
 
-const hook = new Webhook('YOUR WEBHOOK URL');
+const hook = new Webhook('<YOUR_WEBHOOK_URL>');
 
-hook.sendFile('../yourfilename.png');
+hook.sendFile('../yourFileName.png');
 ```
 
 ### Preset messages
 
 ```js
-const { Webhook } = require('discord-webhook-node');
+import { Webhook } from '@glitch452/discord-webhook';
 
-const hook = new Webhook('YOUR WEBHOOK URL');
+const hook = new Webhook('<YOUR_WEBHOOK_URL>');
 
 // Sends an information message
 hook.info('**Information hook**', 'Information field title here', 'Information field value here');
@@ -103,10 +104,10 @@ hook.error('**Error hook**', 'Error field title here', 'Error field value here')
 ### Custom settings
 
 ```js
-const { Webhook } = require('discord-webhook-node');
+import { Webhook } from '@glitch452/discord-webhook';
 
 const hook = new Webhook({
-  url: 'YOUR WEBHOOK URL',
+  url: '<YOUR_WEBHOOK_URL>',
   // If throwErrors is set to false, no errors will be thrown if there is an error sending
   throwErrors: false,
   // retryOnLimit gives you the option to not attempt to send the message again if rate limited
@@ -114,85 +115,8 @@ const hook = new Webhook({
 });
 
 hook.setUsername('Username'); // Overrides the default webhook username
-hook.setAvatar('YOUR_AVATAR_URL'); // Overrides the default webhook avatar
+hook.setAvatar('<YOUR_AVATAR_URL>'); // Overrides the default webhook avatar
 ```
-
-## Notes
-
-discord-webhook-node is a promise based library, which means you can use `.catch`, `.then`, and `await`, although if
-successful will not return any values. For example:
-
-```js
-const { Webhook } = require('discord-webhook-node');
-
-const hook = new Webhook('YOUR WEBHOOK URL');
-
-hook
-  .send('Hello there!')
-  .then(() => console.log('Sent webhook successfully!'))
-  .catch((error) => console.log(error.message));
-```
-
-or using async:
-
-```js
-const { Webhook } = require('discord-webhook-node');
-
-const hook = new Webhook('YOUR WEBHOOK URL');
-
-(async () => {
-  try {
-    await hook.send('Hello there!');
-    console.log('Successfully sent webhook!');
-  } catch (error) {
-    console.log(error.message);
-  }
-})();
-```
-
-By default, it will handle Discord's rate limiting, and if there is an error sending the message (other than rate
-limiting), an error will be thrown. You can change these options with the custom settings options below.
-
-## API
-
-### Webhook - class
-
-Constructor
-
-- options (optional) : object
-  - throwErrors (optional) : boolean
-  - retryOnLimit (optional) : boolean
-
-Methods
-
-- setUsername(username : string) returns this
-- setAvatar(avatarURL : string (image url)) returns this
-- async sendFile(filePath : string)
-- async send(payload : string/MessageBuilder)
-- async info(title : string, fieldName (optional) : string, fieldValue (optional) : string, inline (optional) : boolean)
-- async success(title : string, fieldName (optional) : string, fieldValue (optional) : string, inline (optional) :
-  boolean)
-- async warning(title : string, fieldName (optional) : string, fieldValue (optional) : string, inline (optional) :
-  boolean)
-- async error(title : string, fieldName (optional) : string, fieldValue (optional) : string, inline (optional) :
-  boolean)
--
-
-### MessageBuilder - class
-
-Methods
-
-- setText(text: string)
-- setAuthor(author: string (text), authorImage (optional) : string (image url), authorUrl (optional) : string (link))
-- setTitle(title: string)
-- setURL(url: string)
-- setThumbnail(thumbnail : string (image url))
-- setImage(image : string (image url))
-- setTimestamp(date (optional) number/date object)
-- setColor(color : string/number (hex or decimal color))
-- setDescription(description : string)
-- addField(fieldName : string, fieldValue: string, inline (optional) : boolean)
-- setFooter(footer : string, footerImage (optional) : string (image url))
 
 ## License
 
