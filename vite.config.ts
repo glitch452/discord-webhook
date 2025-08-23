@@ -7,8 +7,9 @@ const baseConfig = defineConfig({
     coverage: {
       reporter: ['text'],
       include: ['src/**/*.ts'],
-      exclude: ['src/**/index.ts', 'src/**/*.test.ts', 'src/**/*.d.ts'],
+      exclude: ['src/**/index.ts', 'src/schemas.ts', 'src/types/*.ts', 'src/**/*.test.ts', 'src/**/*.d.ts'],
     },
+    setupFiles: ['./vitest.setup.ts'],
   },
 });
 
