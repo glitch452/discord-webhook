@@ -1,4 +1,4 @@
-import { files } from 'eslint-config-spartan/utils';
+import { buildConfig } from 'eslint-config-spartan';
 import {
   jsDoc,
   mdx,
@@ -10,7 +10,7 @@ import {
   unicorn,
   vitest,
 } from 'eslint-config-spartan/mixins';
-import { buildConfig } from 'eslint-config-spartan';
+import { files } from 'eslint-config-spartan/utils';
 
 export default buildConfig(
   typeEnabled({ parserOptions: { tsconfigRootDir: import.meta.dirname, projectService: true } }),
@@ -27,6 +27,13 @@ export default buildConfig(
     rules: {
       '@typescript-eslint/no-magic-numbers': 'off',
       'security/detect-non-literal-fs-filename': 'off',
+    },
+  },
+  {
+    name: 'root/import-order',
+    files: [files.jsTs],
+    rules: {
+      'import/order': ['error', { alphabetize: { order: 'asc', caseInsensitive: true }, 'newlines-between': 'never' }],
     },
   },
   prettier,
