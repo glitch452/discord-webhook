@@ -39,6 +39,7 @@
   "cSpell.enabledFileTypes": { "github-actions-workflow": true },
   "cSpell.words": [
     "cjsx",
+    "colour",
     "commitlint",
     "ctsx",
     "davelosert",
@@ -57,6 +58,7 @@
     "stylelintcache",
     "tsup",
     "typecheck",
+    "unstub",
     "Vitest",
     "vuepress",
     "wscript"

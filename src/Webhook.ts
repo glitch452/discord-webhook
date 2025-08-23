@@ -1,9 +1,11 @@
+import { PathLike } from 'fs';
+import { IncomingMessage } from 'http';
 import { StatusCodes } from 'http-status-codes';
 import { MessageBuilder } from './MessageBuilder.js';
 import { webhookResponseBodySchema } from './schemas.js';
 import { sendFile } from './sendFile.js';
 import { sendWebhook } from './sendWebhook.js';
-import { BaseWebhookPayload, WebhookPayload } from './types/webhook-payload.js';
+import { BaseWebhookPayload, FilePayload, WebhookPayload } from './types/webhook-payload.js';
 
 export interface WebhookOptions {
   url: string;
@@ -11,29 +13,40 @@ export interface WebhookOptions {
   throwErrors?: boolean;
   // eslint-disable-next-line @typescript-eslint/naming-convention
   retryOnLimit?: boolean;
+  sendFile?: (hookUrl: string, file: PathLike, payload: FilePayload) => Promise<IncomingMessage>;
+  sendWebhook?: (hookUrl: string, payload: WebhookPayload) => Promise<Response>;
 }
+type RemoveOptional<T> = {
+  [K in keyof T]-?: T[K];
+};
 
 export class Webhook {
-  private static readonly infoColor = 4_037_805;
-  private static readonly successColor = 65_340;
-  private static readonly warningColor = 16_763_904;
-  private static readonly errorColor = 16_729_149;
+  static readonly infoColor = 4_037_805;
+  static readonly successColor = 65_340;
+  static readonly warningColor = 16_763_904;
+  static readonly errorColor = 16_729_149;
 
-  private hookUrl: string;
-  private shouldThrowErrors: boolean;
-  private shouldRetryOnLimit: boolean;
+  private options: RemoveOptional<WebhookOptions>;
+
   private payload: BaseWebhookPayload = {};
 
   constructor(options: WebhookOptions | string) {
-    if (typeof options === 'string') {
-      this.hookUrl = options;
-      this.shouldThrowErrors = true;
-      this.shouldRetryOnLimit = true;
-    } else {
-      this.hookUrl = options.url;
-      this.shouldThrowErrors = options.throwErrors ?? true;
-      this.shouldRetryOnLimit = options.retryOnLimit ?? true;
-    }
+    this.options =
+      typeof options === 'string'
+        ? {
+            url: options,
+            throwErrors: true,
+            retryOnLimit: true,
+            sendFile,
+            sendWebhook,
+          }
+        : {
+            url: options.url,
+            throwErrors: options.throwErrors ?? true,
+            retryOnLimit: options.retryOnLimit ?? true,
+            sendFile: options.sendFile ?? sendFile,
+            sendWebhook: options.sendWebhook ?? sendWebhook,
+          };
   }
 
   setUsername(username: string) {
@@ -48,37 +61,47 @@ export class Webhook {
 
   async sendFile(filePath: string) {
     try {
-      const res = await sendFile(this.hookUrl, filePath, this.payload);
+      const res = await this.options.sendFile(this.options.url, filePath, this.payload);
 
       if (res.statusCode !== StatusCodes.OK) {
         throw new Error(`Error sending webhook: ${res.statusCode} status code.`);
       }
     } catch (error: unknown) {
-      if (this.shouldThrowErrors) {
+      if (this.options.throwErrors) {
         throw error instanceof Error ? error : new Error(String(error));
       }
     }
   }
 
-  async send(payload: MessageBuilder | string) {
+  async send(payload: MessageBuilder | string): Promise<void> {
     const webhookPayload: WebhookPayload = {
       ...this.payload,
       ...(typeof payload === 'string' ? { content: payload } : payload.getJSON()),
     };
 
     try {
-      const res = await sendWebhook(this.hookUrl, webhookPayload);
+      const res = await this.options.sendWebhook(this.options.url, webhookPayload);
 
-      if (res.status === Number(StatusCodes.TOO_MANY_REQUESTS) && this.shouldRetryOnLimit) {
+      if (res.status === Number(StatusCodes.TOO_MANY_REQUESTS) && this.options.retryOnLimit) {
         const body = webhookResponseBodySchema.parse(await res.json());
         const waitUntil = body.retry_after;
 
-        setTimeout(() => this.send(payload), waitUntil);
-      } else if (res.status !== Number(StatusCodes.NO_CONTENT)) {
+        return new Promise((resolve, reject) => {
+          setTimeout(async () => {
+            try {
+              await this.send(payload);
+              resolve();
+            } catch (error: unknown) {
+              reject(error instanceof Error ? error : new Error(String(error)));
+            }
+          }, waitUntil);
+        });
+      }
+      if (res.status !== Number(StatusCodes.NO_CONTENT)) {
         throw new Error(`Error sending webhook: ${res.status} status code. Response: ${await res.text()}`);
       }
     } catch (error) {
-      if (this.shouldThrowErrors) {
+      if (this.options.throwErrors) {
         throw error instanceof Error ? error : new Error(String(error));
       }
     }
