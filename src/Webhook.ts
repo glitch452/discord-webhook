@@ -1,7 +1,7 @@
 import { PathLike } from 'fs';
 import { IncomingMessage } from 'http';
 import { StatusCodes } from 'http-status-codes';
-import { MessageBuilder } from './MessageBuilder.js';
+import { MessageBuilder } from './builders/MessageBuilder.js';
 import { webhookResponseBodySchema } from './schemas.js';
 import { sendFile } from './sendFile.js';
 import { sendWebhook } from './sendWebhook.js';

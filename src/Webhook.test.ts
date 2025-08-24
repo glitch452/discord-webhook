@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { http } from 'msw';
 import { server } from '../vitest.setup.js';
-import { MessageBuilder } from './MessageBuilder.js';
+import { MessageBuilder } from './builders/MessageBuilder.js';
 import { Webhook } from './Webhook.js';
 
 describe(Webhook.name, () => {

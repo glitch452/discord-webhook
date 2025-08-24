@@ -1,4 +1,4 @@
-import { MessageBuilder } from './MessageBuilder.js';
+import { MessageBuilder } from './builders/index.js';
 import { Webhook } from './Webhook.js';
 
 const discordWebhookNode = {
