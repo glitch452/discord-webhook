@@ -1,5 +1,5 @@
 import { http } from 'msw';
-import { server } from '../vitest.setup.js';
+import { server } from '../../vitest.setup.js';
 import { sendWebhook } from './sendWebhook.js';
 
 describe(sendWebhook.name, () => {

@@ -1,6 +1,6 @@
 import { Embed } from '../types/Embed.js';
 import { EmbedWebhookPayload } from '../types/WebhookPayload.js';
-import { formatColor } from '../utils.js';
+import { formatColor } from '../utils/index.js';
 
 export class MessageBuilder {
   private content?: string;

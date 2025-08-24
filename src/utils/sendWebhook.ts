@@ -1,4 +1,4 @@
-import { WebhookPayload } from './types/WebhookPayload.js';
+import { WebhookPayload } from '../types/WebhookPayload.js';
 
 export async function sendWebhook(hookUrl: string, body: WebhookPayload): Promise<Response> {
   return fetch(hookUrl, {

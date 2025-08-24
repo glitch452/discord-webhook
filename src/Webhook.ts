@@ -3,9 +3,8 @@ import { IncomingMessage } from 'http';
 import { StatusCodes } from 'http-status-codes';
 import { MessageBuilder } from './builders/MessageBuilder.js';
 import { webhookResponseBodySchema } from './schemas.js';
-import { sendFile } from './sendFile.js';
-import { sendWebhook } from './sendWebhook.js';
 import { BaseWebhookPayload, FileWebhookPayload, WebhookPayload } from './types/WebhookPayload.js';
+import { sendFile, sendWebhook } from './utils/index.js';
 
 export interface WebhookOptions {
   url: string;
