@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { HttpResponse, http } from 'msw';
-import { server } from '../vitest.setup.js';
+import { server } from '../../vitest.setup.js';
 import { sendFile } from './sendFile.js';
 
 describe(sendFile.name, () => {

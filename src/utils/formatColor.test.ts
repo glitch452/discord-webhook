@@ -1,4 +1,4 @@
-import { formatColor } from './utils.js';
+import { formatColor } from './formatColor.js';
 
 describe(formatColor.name, () => {
   it('should return the number value as given', () => {

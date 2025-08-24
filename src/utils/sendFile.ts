@@ -1,7 +1,7 @@
 import { IncomingMessage } from 'http';
 import fs, { PathLike } from 'node:fs';
 import FormData from 'form-data';
-import { FileWebhookPayload } from './types/WebhookPayload.js';
+import { FileWebhookPayload } from '../types/WebhookPayload.js';
 
 export function sendFile(hookUrl: string, file: PathLike, payload: FileWebhookPayload = {}): Promise<IncomingMessage> {
   const { username, avatar_url } = payload;
