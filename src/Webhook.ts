@@ -5,7 +5,7 @@ import { MessageBuilder } from './MessageBuilder.js';
 import { webhookResponseBodySchema } from './schemas.js';
 import { sendFile } from './sendFile.js';
 import { sendWebhook } from './sendWebhook.js';
-import { BaseWebhookPayload, FilePayload, WebhookPayload } from './types/webhook-payload.js';
+import { BaseWebhookPayload, FileWebhookPayload, WebhookPayload } from './types/WebhookPayload.js';
 
 export interface WebhookOptions {
   url: string;
@@ -13,7 +13,7 @@ export interface WebhookOptions {
   throwErrors?: boolean;
   // eslint-disable-next-line @typescript-eslint/naming-convention
   retryOnLimit?: boolean;
-  sendFile?: (hookUrl: string, file: PathLike, payload: FilePayload) => Promise<IncomingMessage>;
+  sendFile?: (hookUrl: string, file: PathLike, payload: FileWebhookPayload) => Promise<IncomingMessage>;
   sendWebhook?: (hookUrl: string, payload: WebhookPayload) => Promise<Response>;
 }
 type RemoveOptional<T> = {

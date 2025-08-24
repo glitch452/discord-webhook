@@ -38,9 +38,12 @@
 
   "cSpell.enabledFileTypes": { "github-actions-workflow": true },
   "cSpell.words": [
+    "bitfield",
     "cjsx",
     "colour",
     "commitlint",
+    "CROSSPOST",
+    "CROSSPOSTED",
     "ctsx",
     "davelosert",
     "dorny",

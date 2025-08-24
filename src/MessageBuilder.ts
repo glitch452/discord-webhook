@@ -1,9 +1,10 @@
-import { EmbedWebhookPayload, WebhookEmbed } from './types/webhook-payload.js';
+import { Embed } from './types/Embed.js';
+import { EmbedWebhookPayload } from './types/WebhookPayload.js';
 import { formatColor } from './utils.js';
 
 export class MessageBuilder {
   private content?: string;
-  private embed: WebhookEmbed = { type: 'rich' };
+  private embed: Embed = { type: 'rich' };
 
   // eslint-disable-next-line @typescript-eslint/naming-convention
   getJSON(): EmbedWebhookPayload {
@@ -19,7 +20,7 @@ export class MessageBuilder {
     return this;
   }
 
-  setAuthor(name?: string, iconUrl?: string, url?: string): this {
+  setAuthor(name: string = '', iconUrl?: string, url?: string): this {
     this.embed.author = { name, url, icon_url: iconUrl };
     return this;
   }

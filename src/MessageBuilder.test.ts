@@ -18,7 +18,7 @@ describe(MessageBuilder.name, () => {
 
     it('should set the author fields as undefined', () => {
       const embed = new MessageBuilder().setAuthor(undefined, undefined, undefined).getJSON().embeds[0];
-      const expected = { author: {} };
+      const expected = { author: { name: '' } };
       expect(embed).toStrictEqual(expect.objectContaining(expected));
     });
   });
