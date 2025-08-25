@@ -9,6 +9,12 @@
 
   packageRules: [
     {
+      description: 'Limit node versions to those divisible by 4 (Every other LTS)',
+      matchPackageNames: ['node', '@types/node'],
+      allowedVersions: '/^v?([0-9]*[02468][048]|[0-9]*[13579][26]|[048])(\\.[0-9]+){2}$/',
+    },
+
+    {
       description: 'Put typescript into its own group',
       groupName: 'Typescript',
       groupSlug: 'typescript',
