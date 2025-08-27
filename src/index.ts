@@ -1,14 +1,15 @@
 /* eslint-disable unicorn/prefer-export-from */
 
-import { EmbedBuilder, MessageBuilder } from './builders/index.js';
+import { EmbedBuilder, MessageBuilder, PollBuilder } from './builders/index.js';
 import { Webhook } from './Webhook.js';
 
 const discordWebhookNode = {
   Webhook,
   MessageBuilder,
+  PollBuilder,
   EmbedBuilder,
 };
 
 export default discordWebhookNode;
 
-export { Webhook, MessageBuilder, EmbedBuilder };
+export { Webhook, MessageBuilder, PollBuilder, EmbedBuilder };
