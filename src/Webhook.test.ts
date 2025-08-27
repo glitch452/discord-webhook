@@ -2,6 +2,7 @@ import path from 'node:path';
 import { http } from 'msw';
 import { server } from '../vitest.setup.js';
 import { MessageBuilder } from './builders/MessageBuilder.js';
+import { WebhookPayload } from './types/WebhookPayload.js';
 import { Webhook } from './Webhook.js';
 
 describe(Webhook.name, () => {
@@ -68,6 +69,23 @@ describe(Webhook.name, () => {
       await webhook.send(message);
 
       const expected = expect.objectContaining({ content: '<message>' });
+      expect(actual).toStrictEqual(expected);
+    });
+
+    it('should submit the request with the given message in the payload when the input is an object', async () => {
+      let actual: any;
+      server.use(
+        http.post('*', async ({ request }) => {
+          actual = await request.json();
+          return new Response(undefined, { status: 204 });
+        }),
+      );
+
+      const webhook = new Webhook(hookUrl);
+      const message: WebhookPayload = { content: '<message>', username: '<username>' };
+      await webhook.send(message);
+
+      const expected = expect.objectContaining(message);
       expect(actual).toStrictEqual(expected);
     });
 

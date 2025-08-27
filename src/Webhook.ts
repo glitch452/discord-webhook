@@ -43,8 +43,13 @@ export class Webhook {
           };
   }
 
-  async send(payloadOrContent: MessageBuilder | string): Promise<Record<string, unknown> | undefined> {
-    const payload = typeof payloadOrContent === 'string' ? { content: payloadOrContent } : payloadOrContent.toJSON();
+  async send(payloadOrContent: MessageBuilder | WebhookPayload | string): Promise<Record<string, unknown> | undefined> {
+    const payload =
+      typeof payloadOrContent === 'string'
+        ? { content: payloadOrContent }
+        : payloadOrContent instanceof MessageBuilder
+          ? payloadOrContent.toJSON()
+          : payloadOrContent;
 
     if (!payload.content && !payload.embeds?.length && !payload.poll && !payload.files?.length) {
       throw new Error('At least one of Content, Embeds, Files, or Poll must be provided.');
