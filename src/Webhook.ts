@@ -1,10 +1,10 @@
-import { PathLike } from 'fs';
-import { IncomingMessage } from 'http';
 import { StatusCodes } from 'http-status-codes';
+import { z } from 'zod';
+import { EmbedBuilder } from './builders/EmbedBuilder.js';
 import { MessageBuilder } from './builders/MessageBuilder.js';
 import { webhookResponseBodySchema } from './schemas.js';
-import { BaseWebhookPayload, FileWebhookPayload, WebhookPayload } from './types/WebhookPayload.js';
-import { sendFile, sendWebhook } from './utils/index.js';
+import { WebhookPayload } from './types/WebhookPayload.js';
+import { sendWebhook } from './utils/index.js';
 
 export interface WebhookOptions {
   url: string;
@@ -12,7 +12,6 @@ export interface WebhookOptions {
   throwErrors?: boolean;
   // eslint-disable-next-line @typescript-eslint/naming-convention
   retryOnLimit?: boolean;
-  sendFile?: (hookUrl: string, file: PathLike, payload: FileWebhookPayload) => Promise<IncomingMessage>;
   sendWebhook?: (hookUrl: string, payload: WebhookPayload) => Promise<Response>;
 }
 type RemoveOptional<T> = {
@@ -27,8 +26,6 @@ export class Webhook {
 
   private options: RemoveOptional<WebhookOptions>;
 
-  private payload: BaseWebhookPayload = {};
-
   constructor(options: WebhookOptions | string) {
     this.options =
       typeof options === 'string'
@@ -36,50 +33,25 @@ export class Webhook {
             url: options,
             throwErrors: true,
             retryOnLimit: true,
-            sendFile,
             sendWebhook,
           }
         : {
             url: options.url,
             throwErrors: options.throwErrors ?? true,
             retryOnLimit: options.retryOnLimit ?? true,
-            sendFile: options.sendFile ?? sendFile,
             sendWebhook: options.sendWebhook ?? sendWebhook,
           };
   }
 
-  setUsername(username: string) {
-    this.payload.username = username;
-    return this;
-  }
+  async send(payloadOrContent: MessageBuilder | string): Promise<Record<string, unknown> | undefined> {
+    const payload = typeof payloadOrContent === 'string' ? { content: payloadOrContent } : payloadOrContent.toJSON();
 
-  setAvatar(avatarUrl: string) {
-    this.payload.avatar_url = avatarUrl;
-    return this;
-  }
-
-  async sendFile(filePath: string) {
-    try {
-      const res = await this.options.sendFile(this.options.url, filePath, this.payload);
-
-      if (res.statusCode !== StatusCodes.OK) {
-        throw new Error(`Error sending webhook: ${res.statusCode} status code.`);
-      }
-    } catch (error: unknown) {
-      if (this.options.throwErrors) {
-        throw error instanceof Error ? error : new Error(String(error));
-      }
+    if (!payload.content && !payload.embeds?.length && !payload.poll && !payload.files?.length) {
+      throw new Error('At least one of Content, Embeds, Files, or Poll must be provided.');
     }
-  }
-
-  async send(payload: MessageBuilder | string): Promise<void> {
-    const webhookPayload: WebhookPayload = {
-      ...this.payload,
-      ...(typeof payload === 'string' ? { content: payload } : payload.getJSON()),
-    };
 
     try {
-      const res = await this.options.sendWebhook(this.options.url, webhookPayload);
+      const res = await this.options.sendWebhook(this.options.url, payload);
 
       if (res.status === Number(StatusCodes.TOO_MANY_REQUESTS) && this.options.retryOnLimit) {
         const body = webhookResponseBodySchema.parse(await res.json());
@@ -88,61 +60,99 @@ export class Webhook {
         return new Promise((resolve, reject) => {
           setTimeout(async () => {
             try {
-              await this.send(payload);
-              resolve();
+              const response = await this.send(payloadOrContent);
+              resolve(response);
             } catch (error: unknown) {
               reject(error instanceof Error ? error : new Error(String(error)));
             }
           }, waitUntil);
         });
       }
-      if (res.status !== Number(StatusCodes.NO_CONTENT)) {
-        throw new Error(`Error sending webhook: ${res.status} status code. Response: ${await res.text()}`);
+
+      if (res.status === Number(StatusCodes.OK)) {
+        return z.record(z.string(), z.unknown()).parse(await res.json());
       }
-    } catch (error) {
+
+      if (res.status === Number(StatusCodes.NO_CONTENT)) {
+        return;
+      }
+
+      let message = `Error sending webhook: ${res.status} status code.`;
+      const responseText = await res.text();
+      if (responseText) {
+        message += ` Response: ${responseText}`;
+      }
+      throw new Error(message);
+    } catch (error: unknown) {
       if (this.options.throwErrors) {
         throw error instanceof Error ? error : new Error(String(error));
+      } else {
+        console.error(error instanceof Error ? error.message : String(error));
       }
     }
   }
 
-  async info(title: string, fieldName?: string, fieldValue?: string, isInline?: boolean) {
-    const embed = new MessageBuilder().setTitle(title).setTimestamp().setColor(Webhook.infoColor);
+  async info(
+    title: string,
+    fieldName?: string,
+    fieldValue?: string,
+    isInline?: boolean,
+  ): Promise<Record<string, unknown> | undefined> {
+    const embed = new EmbedBuilder().setTitle(title).setTimestamp().setColor(Webhook.infoColor);
 
     if (fieldName && fieldValue) {
       embed.addField(fieldName, fieldValue, isInline);
     }
 
-    await this.send(embed);
+    const message = new MessageBuilder().addEmbed(embed);
+    return this.send(message);
   }
 
-  async success(title: string, fieldName?: string, fieldValue?: string, isInline?: boolean) {
-    const embed = new MessageBuilder().setTitle(title).setTimestamp().setColor(Webhook.successColor);
+  async success(
+    title: string,
+    fieldName?: string,
+    fieldValue?: string,
+    isInline?: boolean,
+  ): Promise<Record<string, unknown> | undefined> {
+    const embed = new EmbedBuilder().setTitle(title).setTimestamp().setColor(Webhook.successColor);
 
     if (fieldName && fieldValue) {
       embed.addField(fieldName, fieldValue, isInline);
     }
 
-    await this.send(embed);
+    const message = new MessageBuilder().addEmbed(embed);
+    return this.send(message);
   }
 
-  async warning(title: string, fieldName?: string, fieldValue?: string, isInline?: boolean) {
-    const embed = new MessageBuilder().setTitle(title).setTimestamp().setColor(Webhook.warningColor);
+  async warning(
+    title: string,
+    fieldName?: string,
+    fieldValue?: string,
+    isInline?: boolean,
+  ): Promise<Record<string, unknown> | undefined> {
+    const embed = new EmbedBuilder().setTitle(title).setTimestamp().setColor(Webhook.warningColor);
 
     if (fieldName && fieldValue) {
       embed.addField(fieldName, fieldValue, isInline);
     }
 
-    await this.send(embed);
+    const message = new MessageBuilder().addEmbed(embed);
+    return this.send(message);
   }
 
-  async error(title: string, fieldName?: string, fieldValue?: string, isInline?: boolean) {
-    const embed = new MessageBuilder().setTitle(title).setTimestamp().setColor(Webhook.errorColor);
+  async error(
+    title: string,
+    fieldName?: string,
+    fieldValue?: string,
+    isInline?: boolean,
+  ): Promise<Record<string, unknown> | undefined> {
+    const embed = new EmbedBuilder().setTitle(title).setTimestamp().setColor(Webhook.errorColor);
 
     if (fieldName && fieldValue) {
       embed.addField(fieldName, fieldValue, isInline);
     }
 
-    await this.send(embed);
+    const message = new MessageBuilder().addEmbed(embed);
+    return this.send(message);
   }
 }
