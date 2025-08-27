@@ -14,6 +14,12 @@ describe(MessageBuilder.name, () => {
       const expected = expect.objectContaining({ content: 'Hello, world!' });
       expect(actual).toStrictEqual(expected);
     });
+
+    it('should set the content when the payload is a string', () => {
+      const actual = new MessageBuilder('Hello, world!').toJSON();
+      const expected = expect.objectContaining({ content: 'Hello, world!' });
+      expect(actual).toStrictEqual(expected);
+    });
   });
 
   describe(MessageBuilder.prototype.setContent.name, () => {

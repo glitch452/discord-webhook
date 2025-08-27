@@ -10,8 +10,8 @@ import { PollBuilder } from './PollBuilder.js';
 export class MessageBuilder {
   private payload: WebhookPayload;
 
-  constructor(payload?: WebhookPayload) {
-    this.payload = payload ?? {};
+  constructor(payloadOrContent?: WebhookPayload | string) {
+    this.payload = typeof payloadOrContent === 'string' ? { content: payloadOrContent } : (payloadOrContent ?? {});
   }
 
   toJSON(): WebhookPayload {
