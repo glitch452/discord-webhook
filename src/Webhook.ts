@@ -19,10 +19,10 @@ type RemoveOptional<T> = {
 };
 
 export class Webhook {
-  static readonly infoColor = 4_037_805;
-  static readonly successColor = 65_340;
-  static readonly warningColor = 16_763_904;
-  static readonly errorColor = 16_729_149;
+  static readonly infoColor = 0x3d_9c_ad;
+  static readonly successColor = 0x00_ff_3c;
+  static readonly warningColor = 0xff_cc_00;
+  static readonly errorColor = 0xff_44_3d;
 
   private options: RemoveOptional<WebhookOptions>;
 
