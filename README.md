@@ -12,7 +12,8 @@
   - [Install](#install)
   - [Examples](#examples)
     - [Basic usage](#basic-usage)
-    - [Custom embeds](#custom-embeds)
+    - [Using the MessageBuilder to set other message parameters](#using-the-messagebuilder-to-set-other-message-parameters)
+    - [Adding a custom Embed to the message](#adding-a-custom-embed-to-the-message)
     - [Sending files](#sending-files)
     - [Preset messages](#preset-messages)
     - [Custom settings](#custom-settings)
@@ -34,27 +35,38 @@ npm install @glitch452/discord-webhook
 ### Basic usage
 
 ```ts
-import { Webhook } from '@glitch452/discord-webhook';
-
-const hook = new Webhook('<YOUR_WEBHOOK_URL>');
-
-hook.setUsername('Discord Webhook Node Name');
-hook.setAvatar('https://cdn.discordapp.com/embed/avatars/0.png');
-
-hook.send('Hello there!');
-```
-
-### Custom embeds
-
-```ts
 import { MessageBuilder, Webhook } from '@glitch452/discord-webhook';
 
 const hook = new Webhook('<YOUR_WEBHOOK_URL>');
 
-const message = new MessageBuilder()
+hook.send('Hello there!');
+```
+
+### Using the MessageBuilder to set other message parameters
+
+```ts
+import { MessageBuilder, Webhook } from '@glitch452/discord-webhook';
+
+const message = new MessageBuilder('Hello there!')
+  .setUsername('Bot Name')
+  .setAvatarUrl('https://cdn.discordapp.com/embed/avatars/0.png');
+
+const hook = new Webhook('<YOUR_WEBHOOK_URL>');
+
+hook.send(message);
+```
+
+### Adding a custom Embed to the message
+
+```ts
+import { EmbedBuilder, MessageBuilder, Webhook } from '@glitch452/discord-webhook';
+
+const hook = new Webhook('<YOUR_WEBHOOK_URL>');
+
+const embed = new EmbedBuilder()
   .setTitle('My title here')
   .setAuthor('Author here', 'https://cdn.discordapp.com/embed/avatars/0.png', 'https://www.google.com')
-  .setURL('https://www.google.com')
+  .setUrl('https://www.google.com')
   .addField('First field', 'this is inline', true)
   .addField('Second field', 'this is not inline')
   .setColor('#00b0f4')
@@ -64,21 +76,25 @@ const message = new MessageBuilder()
   .setFooter('Hey its a footer', 'https://cdn.discordapp.com/embed/avatars/0.png')
   .setTimestamp();
 
+const message = new MessageBuilder().addEmbed(embed);
+
 hook.send(message);
 ```
 
 Keep in mind that the custom embed method `setColor` takes in a decimal color or a hex color (pure black and white hex
-colors will be innacurate). You can convert hex colors to decimal using this website here:
+colors will be inaccurate). You can convert hex colors to decimal using this website here:
 <https://convertingcolors.com>
 
 ### Sending files
 
 ```js
-import { Webhook } from '@glitch452/discord-webhook';
+import { MessageBuilder, Webhook } from '@glitch452/discord-webhook';
 
 const hook = new Webhook('<YOUR_WEBHOOK_URL>');
 
-hook.sendFile('../yourFileName.png');
+const message = new MessageBuilder().addFile('../yourFileName.png');
+
+hook.send(message);
 ```
 
 ### Preset messages
@@ -113,9 +129,6 @@ const hook = new Webhook({
   // retryOnLimit gives you the option to not attempt to send the message again if rate limited
   retryOnLimit: false,
 });
-
-hook.setUsername('Username'); // Overrides the default webhook username
-hook.setAvatar('<YOUR_AVATAR_URL>'); // Overrides the default webhook avatar
 ```
 
 ## License
