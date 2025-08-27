@@ -6,7 +6,7 @@ import { Embed } from './Embed.js';
 import { MessageComponent } from './MessageComponent.js';
 import { PollCreateRequest } from './PollCreateRequest.js';
 
-export type WebhookPayload = ContentWebhookPayload | EmbedWebhookPayload | PollWebhookPayload;
+export type WebhookPayload = ContentWebhookPayload | EmbedWebhookPayload | PollWebhookPayload | FilesWebhookPayload;
 
 export interface FileWebhookPayload {
   username?: string;
@@ -24,6 +24,7 @@ export interface BaseWebhookPayload {
   flags?: number;
   thread_name?: string;
   applied_tags?: string[];
+  files?: string[];
 
   poll?: PollCreateRequest;
   embeds?: Embed[];
@@ -40,4 +41,8 @@ export interface EmbedWebhookPayload extends BaseWebhookPayload {
 
 export interface PollWebhookPayload extends BaseWebhookPayload {
   poll: PollCreateRequest;
+}
+
+export interface FilesWebhookPayload extends BaseWebhookPayload {
+  files: string[];
 }
