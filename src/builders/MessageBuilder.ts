@@ -1,73 +1,100 @@
+import { Attachment } from '../types/Attachment.js';
 import { Embed } from '../types/Embed.js';
-import { EmbedWebhookPayload } from '../types/WebhookPayload.js';
-import { formatColor } from '../utils/index.js';
+import { AllowedMentionType } from '../types/enums.js';
+import { MessageComponent } from '../types/MessageComponent.js';
+import { PollCreateRequest } from '../types/PollCreateRequest.js';
+import { WebhookPayload } from '../types/WebhookPayload.js';
+import { EmbedBuilder } from './EmbedBuilder.js';
+import { PollBuilder } from './PollBuilder.js';
 
 export class MessageBuilder {
-  private content?: string;
-  private embed: Embed = { type: 'rich' };
+  private payload: WebhookPayload;
 
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  getJSON(): EmbedWebhookPayload {
-    const payload: EmbedWebhookPayload = { embeds: [this.embed] };
-    if (this.content) {
-      payload.content = this.content;
+  constructor(payload?: WebhookPayload) {
+    this.payload = payload ?? {};
+  }
+
+  toJSON(): WebhookPayload {
+    return this.payload;
+  }
+
+  setContent(content: string): this {
+    this.payload.content = content;
+    return this;
+  }
+
+  addEmbed(embed: Embed | EmbedBuilder): this {
+    if (!this.payload.embeds?.length) {
+      this.payload.embeds = [];
     }
-    return payload;
-  }
-
-  setText(text: string): this {
-    this.content = text;
+    this.payload.embeds.push(embed instanceof EmbedBuilder ? embed.toJSON() : embed);
     return this;
   }
 
-  setAuthor(name: string = '', iconUrl?: string, url?: string): this {
-    this.embed.author = { name, url, icon_url: iconUrl };
+  addFile(filePath: string): this {
+    if (!this.payload.files?.length) {
+      this.payload.files = [];
+    }
+    this.payload.files.push(filePath);
     return this;
   }
 
-  setTitle(title: string): this {
-    this.embed.title = title;
+  setPoll(poll: PollCreateRequest | PollBuilder): this {
+    this.payload.poll = poll instanceof PollBuilder ? poll.toJSON() : poll;
     return this;
   }
 
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  setURL(url: string): this {
-    this.embed.url = url;
+  setUsername(username: string): this {
+    this.payload.username = username;
     return this;
   }
 
-  setThumbnail(url: string): this {
-    this.embed.thumbnail = { url };
+  setAvatarUrl(avatarUrl: string): this {
+    this.payload.avatar_url = avatarUrl;
     return this;
   }
 
-  setImage(url: string): this {
-    this.embed.image = { url };
+  setTts(isTts: boolean): this {
+    this.payload.tts = isTts;
     return this;
   }
 
-  setTimestamp(date?: Date): this {
-    this.embed.timestamp = date ?? new Date();
+  setAllowedMentions(parse?: AllowedMentionType[], roles?: string[], users?: string[], repliedUser?: boolean): this {
+    this.payload.allowed_mentions = { parse, roles, users, replied_user: repliedUser };
     return this;
   }
 
-  setColor(color: number | string): this {
-    this.embed.color = formatColor(color);
+  addComponents(component: MessageComponent | MessageComponent[]): this {
+    if (!this.payload.components?.length) {
+      this.payload.components = [];
+    }
+    this.payload.components.push(...(Array.isArray(component) ? component : [component]));
     return this;
   }
 
-  setDescription(description: string): this {
-    this.embed.description = description;
+  addAttachments(attachments: Attachment | Attachment[]): this {
+    if (!this.payload.attachments?.length) {
+      this.payload.attachments = [];
+    }
+    this.payload.attachments.push(...(Array.isArray(attachments) ? attachments : [attachments]));
     return this;
   }
 
-  addField(name: string, value: string, isInline?: boolean) {
-    this.embed.fields = [{ name, value, inline: isInline }];
+  setFlags(flags: number): this {
+    this.payload.flags = flags;
     return this;
   }
 
-  setFooter(text: string, iconUrl?: string): this {
-    this.embed.footer = { text, icon_url: iconUrl };
+  setThreadName(threadName: string): this {
+    this.payload.thread_name = threadName;
+    return this;
+  }
+
+  addAppliedTags(tags: string | string[]): this {
+    if (!this.payload.applied_tags?.length) {
+      this.payload.applied_tags = [];
+    }
+    this.payload.applied_tags.push(...(Array.isArray(tags) ? tags : [tags]));
     return this;
   }
 }

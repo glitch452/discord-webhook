@@ -39,7 +39,6 @@
     "Bot"
   ],
   "dependencies": {
-    "form-data": "4.0.4",
     "http-status-codes": "2.3.0",
     "zod": "4.1.3"
   },

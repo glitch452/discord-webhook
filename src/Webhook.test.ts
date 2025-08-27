@@ -37,74 +37,6 @@ describe(Webhook.name, () => {
     expect(actual).toBe(hookUrl);
   });
 
-  describe(Webhook.prototype.setUsername.name, () => {
-    it('should submit the request with the given username in the payload', async () => {
-      let actual: any;
-      server.use(
-        http.post('*', async ({ request }) => {
-          actual = await request.json();
-          return new Response(undefined, { status: 204 });
-        }),
-      );
-
-      const webhook = new Webhook(hookUrl).setUsername('<username>');
-      await webhook.send('<message>');
-
-      const expected = expect.objectContaining({ username: '<username>' });
-      expect(actual).toStrictEqual(expected);
-    });
-  });
-
-  describe(Webhook.prototype.setAvatar.name, () => {
-    it('should submit the request with the given avatar url in the payload', async () => {
-      let actual: any;
-      server.use(
-        http.post('*', async ({ request }) => {
-          actual = await request.json();
-          return new Response(undefined, { status: 204 });
-        }),
-      );
-
-      const webhook = new Webhook(hookUrl).setAvatar('<avatar>');
-      await webhook.send('<message>');
-
-      const expected = expect.objectContaining({ avatar_url: '<avatar>' });
-      expect(actual).toStrictEqual(expected);
-    });
-  });
-
-  describe(Webhook.prototype.sendFile.name, () => {
-    const filePath = path.join(__dirname, 'Webhook.test.ts');
-
-    it('should submit the request with the given file in the payload', async () => {
-      let actual: any;
-      server.use(
-        http.post('*', async ({ request }) => {
-          // eslint-disable-next-line @typescript-eslint/no-deprecated
-          actual = ((await request.formData()).get('file') as File).name;
-          return new Response(undefined, { status: 200 });
-        }),
-      );
-
-      const webhook = new Webhook(hookUrl);
-      await webhook.sendFile(filePath);
-
-      expect(actual).toBe('Webhook.test.ts');
-    });
-
-    it('should throw an error if the response is not a 200 status code', async () => {
-      server.use(http.post('*', () => new Response(undefined, { status: 500 })));
-      const webhook = new Webhook(hookUrl);
-      await expect(webhook.sendFile(filePath)).rejects.toThrowError();
-    });
-
-    it('should not throw an error if the response is not a 200 status code and the throwsErrors input is false', async () => {
-      server.use(http.post('*', () => new Response(undefined, { status: 500 })));
-      const webhook = new Webhook({ url: hookUrl, throwErrors: false });
-      await expect(webhook.sendFile(filePath)).resolves.toBeUndefined();
-    });
-  });
-
   describe(Webhook.prototype.send.name, () => {
     it('should submit the request with the given message in the payload when the input is a string', async () => {
       let actual: any;
@@ -132,20 +64,37 @@ describe(Webhook.name, () => {
       );
 
       const webhook = new Webhook(hookUrl);
-      const message = new MessageBuilder().setText('<message>');
+      const message = new MessageBuilder().setContent('<message>');
       await webhook.send(message);
 
       const expected = expect.objectContaining({ content: '<message>' });
       expect(actual).toStrictEqual(expected);
     });
 
-    it('should throw an error if the response is not a 200 status code', async () => {
+    it('should return the response payload converted from json if the status code is 200', async () => {
+      server.use(http.post('*', () => new Response(JSON.stringify({ content: '<message>' }), { status: 200 })));
+
+      const webhook = new Webhook(hookUrl);
+      const message = new MessageBuilder().setContent('<message>');
+
+      const actual = await webhook.send(message);
+      const expected = { content: '<message>' };
+      expect(actual).toStrictEqual(expected);
+    });
+
+    it('should throw an error if the payload does not contain content, an embed, a file, or a poll', async () => {
+      const message = new MessageBuilder();
+      const webhook = new Webhook(hookUrl);
+      await expect(webhook.send(message)).rejects.toThrowError('At least one of');
+    });
+
+    it('should throw an error if the response is not a 200 or 204 status code', async () => {
       server.use(http.post('*', () => new Response(undefined, { status: 500 })));
       const webhook = new Webhook(hookUrl);
       await expect(webhook.send('<message>')).rejects.toThrowError();
     });
 
-    it('should not throw an error if the response is not a 200 status code and the throwsErrors input is false', async () => {
+    it('should not throw an error if the response is not a 200 or 204 status code and the throwsErrors input is false', async () => {
       server.use(http.post('*', () => new Response(undefined, { status: 500 })));
       const webhook = new Webhook({ url: hookUrl, throwErrors: false });
       await expect(webhook.send('<message>')).resolves.toBeUndefined();
@@ -215,6 +164,23 @@ describe(Webhook.name, () => {
       await expect(webhook.send('<message>')).rejects.toThrowError();
       // eslint-disable-next-line vitest/max-expects
       expect(attempts).toBe(1);
+    });
+
+    it('should submit the request with the given file in the payload', async () => {
+      let actual: any;
+      server.use(
+        http.post('*', async ({ request }) => {
+          // eslint-disable-next-line @typescript-eslint/no-deprecated
+          actual = ((await request.formData()).get('file0') as File).name;
+          return new Response('{}', { status: 200 });
+        }),
+      );
+
+      const webhook = new Webhook(hookUrl);
+      const message = new MessageBuilder().addFile(import.meta.filename);
+      await webhook.send(message);
+
+      expect(actual).toBe(path.basename(import.meta.filename));
     });
   });
 

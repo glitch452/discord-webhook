@@ -1,117 +1,220 @@
+import { PollBuilder } from '../index.js';
+import { Attachment } from '../types/Attachment.js';
+import { Embed } from '../types/Embed.js';
+import { ButtonStyle, MessageComponentType } from '../types/enums.js';
+import { MessageComponent } from '../types/MessageComponent.js';
+import { PollCreateRequest } from '../types/PollCreateRequest.js';
+import { EmbedBuilder } from './EmbedBuilder.js';
 import { MessageBuilder } from './MessageBuilder.js';
 
 describe(MessageBuilder.name, () => {
-  describe(MessageBuilder.prototype.setText.name, () => {
+  describe('constructor', () => {
+    it('should set the given payload', () => {
+      const actual = new MessageBuilder({ content: 'Hello, world!' }).toJSON();
+      const expected = expect.objectContaining({ content: 'Hello, world!' });
+      expect(actual).toStrictEqual(expected);
+    });
+  });
+
+  describe(MessageBuilder.prototype.setContent.name, () => {
     it('should set the content', () => {
-      const message = new MessageBuilder().setText('Hello, world!').getJSON();
-      const expected = { content: 'Hello, world!' };
-      expect(message).toStrictEqual(expect.objectContaining(expected));
+      const actual = new MessageBuilder().setContent('Hello, world!').toJSON();
+      const expected = expect.objectContaining({ content: 'Hello, world!' });
+      expect(actual).toStrictEqual(expected);
     });
   });
 
-  describe(MessageBuilder.prototype.setAuthor.name, () => {
-    it('should set the author fields with the given values', () => {
-      const embed = new MessageBuilder().setAuthor('<name>', '<iconUrl>', '<url>').getJSON().embeds[0];
-      const expected = { author: { name: '<name>', icon_url: '<iconUrl>', url: '<url>' } };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
+  describe(MessageBuilder.prototype.addEmbed.name, () => {
+    it('should add an embed using the EmbedBuilder', () => {
+      const embed = new EmbedBuilder().setTitle('<title>').setDescription('<description>');
+      const actual = new MessageBuilder().addEmbed(embed).toJSON().embeds;
+      const expected = [expect.objectContaining(embed.toJSON())];
+      expect(actual).toStrictEqual(expected);
     });
 
-    it('should set the author fields as undefined', () => {
-      const embed = new MessageBuilder().setAuthor(undefined, undefined, undefined).getJSON().embeds[0];
-      const expected = { author: { name: '' } };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
+    it('should add an embed using the interface type', () => {
+      const embed: Embed = { type: 'rich', title: '<title>', description: '<description>' };
+      const actual = new MessageBuilder().addEmbed(embed).toJSON().embeds;
+      const expected = [expect.objectContaining(embed)];
+      expect(actual).toStrictEqual(expected);
     });
-  });
 
-  describe(MessageBuilder.prototype.setTitle.name, () => {
-    it('should set the title field with the given value', () => {
-      const embed = new MessageBuilder().setTitle('<title>').getJSON().embeds[0];
-      const expected = { title: '<title>' };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
-    });
-  });
-
-  describe(MessageBuilder.prototype.setURL.name, () => {
-    it('should set the url field with the given value', () => {
-      const embed = new MessageBuilder().setURL('<url>').getJSON().embeds[0];
-      const expected = { url: '<url>' };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
+    it('should add multiple embeds', () => {
+      const embed1: Embed = { type: 'rich', title: '<title1>', description: '<description1>' };
+      const embed2 = new EmbedBuilder().setTitle('<title2>').setDescription('<description2>');
+      const actual = new MessageBuilder().addEmbed(embed1).addEmbed(embed2).toJSON().embeds;
+      const expected = [expect.objectContaining(embed1), expect.objectContaining(embed2.toJSON())];
+      expect(actual).toStrictEqual(expected);
     });
   });
 
-  describe(MessageBuilder.prototype.setThumbnail.name, () => {
-    it('should set the thumbnail field with the given value', () => {
-      const embed = new MessageBuilder().setThumbnail('<url>').getJSON().embeds[0];
-      const expected = { thumbnail: { url: '<url>' } };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
+  describe(MessageBuilder.prototype.addFile.name, () => {
+    it('should add a file', () => {
+      const file = 'a-file.txt';
+      const actual = new MessageBuilder().addFile(file).toJSON().files;
+      const expected = [file];
+      expect(actual).toStrictEqual(expected);
+    });
+
+    it('should add multiple files', () => {
+      const file1 = 'a-file.txt';
+      const file2 = 'another-file.txt';
+      const actual = new MessageBuilder().addFile(file1).addFile(file2).toJSON().files;
+      const expected = [file1, file2];
+      expect(actual).toStrictEqual(expected);
     });
   });
 
-  describe(MessageBuilder.prototype.setImage.name, () => {
-    it('should set the image field with the given value', () => {
-      const embed = new MessageBuilder().setImage('<url>').getJSON().embeds[0];
-      const expected = { image: { url: '<url>' } };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
+  describe(MessageBuilder.prototype.setPoll.name, () => {
+    it('should set the poll using the interface type', () => {
+      const poll: PollCreateRequest = {
+        question: { text: '<question>' },
+        answers: [{ poll_media: { text: '<option1>' } }, { poll_media: { text: '<option2>' } }],
+      };
+      const actual = new MessageBuilder().setPoll(poll).toJSON().poll;
+      const expected = expect.objectContaining(poll);
+      expect(actual).toStrictEqual(expected);
+    });
+
+    it('should set the poll using the PollBuilder', () => {
+      const poll = new PollBuilder({ text: '<question>' })
+        .addAnswer({ text: '<option1>' })
+        .addAnswer({ text: '<option2>' });
+      const actual = new MessageBuilder().setPoll(poll).toJSON().poll;
+      const expected = expect.objectContaining(poll.toJSON());
+      expect(actual).toStrictEqual(expected);
     });
   });
 
-  describe(MessageBuilder.prototype.setTimestamp.name, () => {
-    it('should set the timestamp field with the given value', () => {
-      const date = new Date('2023-01-01T00:00:00Z');
-      const embed = new MessageBuilder().setTimestamp(date).getJSON().embeds[0];
-      const expected = { timestamp: date };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
-    });
-
-    it('should set the timestamp field with the current date when no value is given', () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(new Date('2025-08-23T12:00:00Z'));
-      const embed = new MessageBuilder().setTimestamp().getJSON().embeds[0];
-      const expected = { timestamp: new Date('2025-08-23T12:00:00Z') };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
-      vi.useRealTimers();
+  describe(MessageBuilder.prototype.setUsername.name, () => {
+    it('should set the username', () => {
+      const actual = new MessageBuilder().setUsername('<username>').toJSON();
+      const expected = expect.objectContaining({ username: '<username>' });
+      expect(actual).toStrictEqual(expected);
     });
   });
 
-  describe(MessageBuilder.prototype.setColor.name, () => {
-    it('should set the color field with the given value', () => {
-      const embed = new MessageBuilder().setColor(56_789).getJSON().embeds[0];
-      const expected = { color: 56_789 };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
-    });
-
-    it('should set the color field with the decimal equivalent of the given hex value', () => {
-      const embed = new MessageBuilder().setColor('#0000FF').getJSON().embeds[0];
-      const expected = { color: 255 };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
-    });
-
-    it('should throw an error when given an invalid hex code', () => {
-      expect(() => new MessageBuilder().setColor('#0000GF')).toThrowError('Invalid color format: #0000GF');
+  describe(MessageBuilder.prototype.setAvatarUrl.name, () => {
+    it('should set the avatar URL', () => {
+      const actual = new MessageBuilder().setAvatarUrl('<avatar_url>').toJSON();
+      const expected = expect.objectContaining({ avatar_url: '<avatar_url>' });
+      expect(actual).toStrictEqual(expected);
     });
   });
 
-  describe(MessageBuilder.prototype.setDescription.name, () => {
-    it('should set the description field with the given value', () => {
-      const embed = new MessageBuilder().setDescription('<description>').getJSON().embeds[0];
-      const expected = { description: '<description>' };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
+  describe(MessageBuilder.prototype.setTts.name, () => {
+    it('should set the TTS', () => {
+      const actual = new MessageBuilder().setTts(true).toJSON();
+      const expected = expect.objectContaining({ tts: true });
+      expect(actual).toStrictEqual(expected);
     });
   });
 
-  describe(MessageBuilder.prototype.addField.name, () => {
-    it('should add a field with the given values', () => {
-      const embed = new MessageBuilder().addField('<name>', '<value>', true).getJSON().embeds[0];
-      const expected = { fields: [{ name: '<name>', value: '<value>', inline: true }] };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
+  describe(MessageBuilder.prototype.setAllowedMentions.name, () => {
+    it('should set the allowed mentions', () => {
+      const actual = new MessageBuilder().setAllowedMentions(['everyone'], ['<role>'], ['<user>'], true).toJSON();
+      const expected = expect.objectContaining({
+        allowed_mentions: { parse: ['everyone'], roles: ['<role>'], users: ['<user>'], replied_user: true },
+      });
+      expect(actual).toStrictEqual(expected);
     });
   });
 
-  describe(MessageBuilder.prototype.setFooter.name, () => {
-    it('should set the footer with the given values', () => {
-      const embed = new MessageBuilder().setFooter('<text>', '<iconUrl>').getJSON().embeds[0];
-      const expected = { footer: { text: '<text>', icon_url: '<iconUrl>' } };
-      expect(embed).toStrictEqual(expect.objectContaining(expected));
+  describe(MessageBuilder.prototype.addComponents.name, () => {
+    it('should add a single component', () => {
+      const component: MessageComponent = {
+        type: MessageComponentType.Button,
+        style: ButtonStyle.Primary,
+        disabled: false,
+        custom_id: '<custom_id>',
+      };
+      const actual = new MessageBuilder().addComponents(component).toJSON();
+      const expected = expect.objectContaining({ components: [component] });
+      expect(actual).toStrictEqual(expected);
+    });
+
+    it('should add multiple components', () => {
+      const component1: MessageComponent = {
+        type: MessageComponentType.Button,
+        style: ButtonStyle.Primary,
+        disabled: false,
+        custom_id: '<custom_id_1>',
+      };
+      const component2: MessageComponent = {
+        type: MessageComponentType.Button,
+        style: ButtonStyle.Secondary,
+        disabled: true,
+        custom_id: '<custom_id_2>',
+      };
+      const actual = new MessageBuilder().addComponents([component1, component2]).toJSON();
+      const expected = expect.objectContaining({ components: [component1, component2] });
+      expect(actual).toStrictEqual(expected);
+    });
+  });
+
+  describe(MessageBuilder.prototype.addAttachments.name, () => {
+    it('should add a single attachment', () => {
+      const attachment: Attachment = {
+        id: '<attachment_id>',
+        filename: '<filename>',
+        size: 12_345,
+        url: '<url>',
+        proxy_url: '<proxy_url>',
+      };
+      const actual = new MessageBuilder().addAttachments(attachment).toJSON();
+      const expected = expect.objectContaining({ attachments: [attachment] });
+      expect(actual).toStrictEqual(expected);
+    });
+
+    it('should add multiple attachments', () => {
+      const attachment1: Attachment = {
+        id: '<attachment_id_1>',
+        filename: '<filename_1>',
+        size: 12_345,
+        url: '<url_1>',
+        proxy_url: '<proxy_url_1>',
+      };
+      const attachment2: Attachment = {
+        id: '<attachment_id_2>',
+        filename: '<filename_2>',
+        size: 67_890,
+        url: '<url_2>',
+        proxy_url: '<proxy_url_2>',
+      };
+
+      const actual = new MessageBuilder().addAttachments([attachment1, attachment2]).toJSON();
+      const expected = expect.objectContaining({ attachments: [attachment1, attachment2] });
+      expect(actual).toStrictEqual(expected);
+    });
+  });
+
+  describe(MessageBuilder.prototype.setFlags.name, () => {
+    it('should set the flags', () => {
+      const actual = new MessageBuilder().setFlags(1).toJSON();
+      const expected = expect.objectContaining({ flags: 1 });
+      expect(actual).toStrictEqual(expected);
+    });
+  });
+
+  describe(MessageBuilder.prototype.setThreadName.name, () => {
+    it('should set the thread name', () => {
+      const actual = new MessageBuilder().setThreadName('<thread_name>').toJSON();
+      const expected = expect.objectContaining({ thread_name: '<thread_name>' });
+      expect(actual).toStrictEqual(expected);
+    });
+  });
+
+  describe(MessageBuilder.prototype.addAppliedTags.name, () => {
+    it('should add a single applied tag', () => {
+      const actual = new MessageBuilder().addAppliedTags('<tag>').toJSON();
+      const expected = expect.objectContaining({ applied_tags: ['<tag>'] });
+      expect(actual).toStrictEqual(expected);
+    });
+
+    it('should add multiple applied tags', () => {
+      const actual = new MessageBuilder().addAppliedTags(['<tag1>', '<tag2>']).toJSON();
+      const expected = expect.objectContaining({ applied_tags: ['<tag1>', '<tag2>'] });
+      expect(actual).toStrictEqual(expected);
     });
   });
 });

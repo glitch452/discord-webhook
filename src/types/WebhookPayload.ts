@@ -6,21 +6,14 @@ import { Embed } from './Embed.js';
 import { MessageComponent } from './MessageComponent.js';
 import { PollCreateRequest } from './PollCreateRequest.js';
 
-export type WebhookPayload = ContentWebhookPayload | EmbedWebhookPayload | PollWebhookPayload | FilesWebhookPayload;
-
-export interface FileWebhookPayload {
-  username?: string;
-  avatar_url?: string;
-}
-
-export interface BaseWebhookPayload {
+export interface WebhookPayload {
   username?: string;
   avatar_url?: string;
   tts?: boolean;
   allowed_mentions?: AllowedMentions;
   components?: MessageComponent[];
   attachments?: Attachment[];
-  // message flags combined as a bitfield
+  /** message flags combined as a bitfield */
   flags?: number;
   thread_name?: string;
   applied_tags?: string[];
@@ -29,20 +22,4 @@ export interface BaseWebhookPayload {
   poll?: PollCreateRequest;
   embeds?: Embed[];
   content?: string;
-}
-
-export interface ContentWebhookPayload extends BaseWebhookPayload {
-  content: string;
-}
-
-export interface EmbedWebhookPayload extends BaseWebhookPayload {
-  embeds: Embed[];
-}
-
-export interface PollWebhookPayload extends BaseWebhookPayload {
-  poll: PollCreateRequest;
-}
-
-export interface FilesWebhookPayload extends BaseWebhookPayload {
-  files: string[];
 }
