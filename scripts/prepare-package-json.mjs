@@ -4,7 +4,6 @@ import fs from 'fs';
 import path from 'path';
 import { Command } from '@commander-js/extra-typings';
 
-// eslint-disable-next-line jsdoc/valid-types
 const fileName = /** @type {const} */ ({
   TYPES_ESM: 'index.d.ts',
   TYPES_CJS: 'index.d.cts',
