@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { basename } from 'node:path';
+import { blob } from 'node:stream/consumers';
 import { WebhookPayload } from '../types/WebhookPayload.js';
 
 export async function sendWebhook(hookUrl: string, payload: WebhookPayload): Promise<Response> {
@@ -13,15 +14,11 @@ export async function sendWebhook(hookUrl: string, payload: WebhookPayload): Pro
       form.append('payload_json', jsonPayload);
     }
 
-    files.forEach((filePath, i) => {
-      form.append(`file${i}`, {
-        [Symbol.toStringTag]: 'File',
-        name: basename(filePath),
-        // eslint-disable-next-line security/detect-non-literal-fs-filename
-        stream: () => fs.createReadStream(filePath),
-      });
-    });
-
+    for (const [i, filePath] of files.entries()) {
+      // eslint-disable-next-line security/detect-non-literal-fs-filename -- Use at your own risk!
+      const file = await blob(fs.createReadStream(filePath));
+      form.append(`file${i}`, file, basename(filePath));
+    }
     return fetch(hookUrl, { method: 'POST', body: form });
   }
 
