@@ -52,7 +52,7 @@
     "@vitest/coverage-v8": "4.0.16",
     "commander": "14.0.2",
     "eslint": "9.39.2",
-    "eslint-config-spartan": "5.9.6",
+    "eslint-config-spartan": "5.12.2",
     "husky": "9.1.7",
     "lint-staged": "16.2.7",
     "msw": "2.12.4",

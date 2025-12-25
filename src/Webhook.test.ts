@@ -90,7 +90,7 @@ describe(Webhook.name, () => {
     });
 
     it('should return the response payload converted from json if the status code is 200', async () => {
-      server.use(http.post('*', () => new Response(JSON.stringify({ content: '<message>' }), { status: 200 })));
+      server.use(http.post('*', () => Response.json({ content: '<message>' }, { status: 200 })));
 
       const webhook = new Webhook(hookUrl);
       const message = new MessageBuilder().setContent('<message>');
@@ -125,7 +125,7 @@ describe(Webhook.name, () => {
         http.post('*', () => {
           attempts++;
           if (attempts === 1) {
-            return new Response(JSON.stringify({ retry_after: retryTime }), { status: 429 });
+            return Response.json({ retry_after: retryTime }, { status: 429 });
           }
           return new Response(undefined, { status: 204 });
         }),
@@ -146,7 +146,7 @@ describe(Webhook.name, () => {
         http.post('*', () => {
           attempts++;
           if (attempts === 1 || attempts === 2) {
-            return new Response(JSON.stringify({ retry_after: retryTime }), { status: 429 });
+            return Response.json({ retry_after: retryTime }, { status: 429 });
           }
           return new Response(undefined, { status: 500 });
         }),
@@ -171,7 +171,7 @@ describe(Webhook.name, () => {
         http.post('*', () => {
           attempts++;
           if (attempts === 1) {
-            return new Response(JSON.stringify({ retry_after: retryTime }), { status: 429 });
+            return Response.json({ retry_after: retryTime }, { status: 429 });
           }
           return new Response(undefined, { status: 204 });
         }),
