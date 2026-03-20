@@ -61,7 +61,7 @@ describe(EmbedBuilder.name, () => {
     });
 
     it('should throw an error when given an invalid hex code', () => {
-      expect(() => new EmbedBuilder().setColor('#0000GF')).toThrowError('Invalid color format: #0000GF');
+      expect(() => new EmbedBuilder().setColor('#0000GF')).toThrow('Invalid color format: #0000GF');
     });
   });
 

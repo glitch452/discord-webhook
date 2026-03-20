@@ -12,6 +12,6 @@ describe(formatColor.name, () => {
   });
 
   it('should throw an error for invalid hex colors', () => {
-    expect(() => formatColor('#ZZZZZZ')).toThrowError('Invalid color format: #ZZZZZZ');
+    expect(() => formatColor('#ZZZZZZ')).toThrow('Invalid color format: #ZZZZZZ');
   });
 });

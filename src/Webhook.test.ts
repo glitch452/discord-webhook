@@ -103,13 +103,13 @@ describe(Webhook.name, () => {
     it('should throw an error if the payload does not contain content, an embed, a file, or a poll', async () => {
       const message = new MessageBuilder();
       const webhook = new Webhook(hookUrl);
-      await expect(webhook.send(message)).rejects.toThrowError('At least one of');
+      await expect(webhook.send(message)).rejects.toThrow('At least one of');
     });
 
     it('should throw an error if the response is not a 200 or 204 status code', async () => {
       server.use(http.post('*', () => new Response(undefined, { status: 500 })));
       const webhook = new Webhook(hookUrl);
-      await expect(webhook.send('<message>')).rejects.toThrowError();
+      await expect(webhook.send('<message>')).rejects.toThrow();
     });
 
     it('should not throw an error if the response is not a 200 or 204 status code and the throwsErrors input is false', async () => {
@@ -155,7 +155,7 @@ describe(Webhook.name, () => {
       const webhook = new Webhook({ url: hookUrl, retryOnLimit: true });
 
       // eslint-disable-next-line vitest/valid-expect
-      const expectPromise = expect(webhook.send('<message>')).rejects.toThrowError();
+      const expectPromise = expect(webhook.send('<message>')).rejects.toThrow();
       await vi.advanceTimersByTimeAsync(retryTime);
       await vi.advanceTimersByTimeAsync(retryTime);
       await expectPromise;
@@ -179,7 +179,7 @@ describe(Webhook.name, () => {
 
       const webhook = new Webhook({ url: hookUrl, retryOnLimit: false });
 
-      await expect(webhook.send('<message>')).rejects.toThrowError();
+      await expect(webhook.send('<message>')).rejects.toThrow();
       // eslint-disable-next-line vitest/max-expects
       expect(attempts).toBe(1);
     });
