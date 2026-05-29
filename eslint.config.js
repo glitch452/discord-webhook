@@ -30,10 +30,13 @@ export default buildConfig(
     },
   },
   {
-    name: 'root/import-order',
+    name: 'root/import-x-order',
     files: [files.jsTs],
     rules: {
-      'import/order': ['error', { alphabetize: { order: 'asc', caseInsensitive: true }, 'newlines-between': 'never' }],
+      'import-x/order': [
+        'error',
+        { alphabetize: { order: 'asc', caseInsensitive: true }, 'newlines-between': 'never' },
+      ],
     },
   },
   prettier,
