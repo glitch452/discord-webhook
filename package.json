@@ -64,7 +64,7 @@
     "vitest": "4.1.7"
   },
   "overrides": {
-    "fflate": "0.8.3"
+    "fflate": "0.8.2"
   },
   "engines": {
     "node": ">=20"

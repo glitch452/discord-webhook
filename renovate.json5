@@ -28,5 +28,13 @@
       matchPackageNames: ['commander', '@commander-js/**'],
       matchUpdateTypes: ['major'],
     },
+
+    {
+      description: 'Do not update npm overrides entries',
+      enabled: false,
+      matchManagers: ['npm'],
+      matchDepTypes: ['overrides'],
+      matchPackageNames: ['fflate'],
+    },
   ],
 }
