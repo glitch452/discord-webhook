@@ -63,9 +63,6 @@
     "typescript": "5.9.3",
     "vitest": "4.1.8"
   },
-  "overrides": {
-    "fflate": "0.8.2"
-  },
   "engines": {
     "node": ">=20"
   }
