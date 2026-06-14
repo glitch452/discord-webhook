@@ -4,7 +4,7 @@
   "description": "Allows for easy webhook sending through discord's webhook API",
   "type": "module",
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "clean": "rimraf dist",
     "format:ci": "prettier --check '**.{css,html,mjs,cjs,js,json,jsx,cjsx,mjsx,md,mdx,scss,cts,ts,tsx,ctsx,mtsx,yaml,yml}'",
     "format": "prettier --write .",
@@ -59,7 +59,7 @@
     "msw": "2.14.6",
     "prettier": "3.8.3",
     "rimraf": "6.1.3",
-    "tsup": "8.5.1",
+    "tsdown": "^0.22.2",
     "typescript": "6.0.3",
     "vitest": "4.1.8"
   },
