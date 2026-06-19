@@ -53,7 +53,7 @@
     "@vitest/coverage-v8": "4.1.9",
     "commander": "15.0.0",
     "eslint": "9.39.4",
-    "eslint-config-spartan": "6.0.3",
+    "eslint-config-spartan": "7.0.0",
     "husky": "9.1.7",
     "lint-staged": "17.0.7",
     "msw": "2.14.6",
