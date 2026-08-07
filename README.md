@@ -17,6 +17,7 @@
     - [Sending files](#sending-files)
     - [Preset messages](#preset-messages)
     - [Custom settings](#custom-settings)
+  - [Branching Strategy](#branching-strategy)
   - [License](#license)
 
 ## What's New
@@ -130,6 +131,14 @@ const hook = new Webhook({
   retryOnLimit: false,
 });
 ```
+
+## Branching Strategy
+
+`main` is the only long-lived branch — it is always releasable and reflects the latest published release.
+
+All changes must be made via a pull request into `main`. Once a pull request is merged, the
+[Release GitHub Actions workflow](.github/workflows/release.yml) automatically determines the next version and publishes
+the package to NPM — there is no manual release step.
 
 ## License
 
