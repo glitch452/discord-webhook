@@ -2,7 +2,11 @@
   // Docs: https://docs.renovatebot.com/configuration-options
 
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: ['github>glitch452/renovate-config', 'github>glitch452/renovate-config//presets/npm'],
+  extends: [
+    'github>glitch452/renovate-config',
+    'github>glitch452/renovate-config//presets/npm',
+    'github>glitch452/renovate-config//presets/automerge-non-major',
+  ],
 
   // Run on Friday Mornings
   schedule: ['* 0-6 * * 5'],
