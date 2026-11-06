@@ -52,7 +52,7 @@
     "@types/node": "24.19.2",
     "@vitest/coverage-v8": "5.1.0",
     "commander": "15.0.0",
-    "eslint": "9.39.5",
+    "eslint": "10.14.0",
     "eslint-config-spartan": "7.6.9",
     "husky": "9.1.7",
     "lint-staged": "17.6.0",
