@@ -50,18 +50,18 @@
     "@eslint/config-inspector": "3.5.0",
     "@total-typescript/ts-reset": "0.6.1",
     "@types/node": "24.19.2",
-    "@vitest/coverage-v8": "5.1.0",
+    "@vitest/coverage-v8": "5.1.1",
     "commander": "15.1.0",
     "eslint": "9.39.5",
-    "eslint-config-spartan": "7.6.9",
+    "eslint-config-spartan": "7.8.1",
     "husky": "9.1.7",
-    "lint-staged": "17.6.1",
-    "msw": "3.0.6",
+    "lint-staged": "17.6.2",
+    "msw": "3.0.7",
     "prettier": "3.10.1",
     "rimraf": "6.1.4",
     "tsdown": "0.23.7",
     "typescript": "6.0.3",
-    "vitest": "5.1.0"
+    "vitest": "5.1.1"
   },
   "engines": {
     "node": ">=20"
